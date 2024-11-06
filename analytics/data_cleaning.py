@@ -2,7 +2,15 @@ import pandas as pd
 import numpy as np
 
 
-def normalize_nan_str_values(serie: pd.Series) -> pd.Series:
+def normalize_words(serie: pd.Series) -> pd.Series:
+    """"""
+    idx_words = serie.str.match("^[\-'a-zA-Z]+(\s[\-'a-zA-Z]+)*$")
+    s = serie.copy()
+    s[idx_words] = pd.NA
+    return s
+
+
+def normalize_na_str_values(serie: pd.Series) -> pd.Series:
     """ """
     return serie.replace("·", pd.NA, regex=True)
 
