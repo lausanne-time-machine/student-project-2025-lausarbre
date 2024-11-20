@@ -10,7 +10,7 @@ def normalize_words(serie: pd.Series) -> pd.Series:
     return s
 
 
-def normalize_na_str_values(serie: pd.Series) -> pd.Series:
+def normalize_nan_str_values(serie: pd.Series) -> pd.Series:
     """ """
     return serie.replace("·", pd.NA, regex=True)
 
