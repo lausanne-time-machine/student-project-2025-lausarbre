@@ -1,6 +1,8 @@
+import time
 import pandas as pd
 
-from analytics import BasicTracker
+
+from analytics import BasicTracker, MinChangesTracker
 
 columns = [
     "chef_prenom_norm",
@@ -12,11 +14,16 @@ columns = [
 
 baseline = ["louis", "collioud", "marterey", "marechat", "blanchoud"]
 
-df = pd.read_csv("data/csv/1851.csv")
+df = pd.read_csv("data/csv/1842.csv")
 
-tracker = BasicTracker(columns, baseline)
+tracker = MinChangesTracker(columns, baseline)
+
+st = time.perf_counter()
 
 global_scores = tracker.process_df(df)
+
+d = time.perf_counter() - st
+print(f"Duration: {d:.2f}")
 
 result = pd.concat([df[columns], global_scores], axis=1)
 
