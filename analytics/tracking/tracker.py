@@ -72,8 +72,8 @@ class Tracker(ABC):
             scores["global_scores"] = global_scores
             df = scores
         else:
-            df = pd.DataFrame(data=global_scores)
-        return scores
+            df = pd.DataFrame(data=global_scores, columns=["global_scores"])
+        return df
 
     def _compute_columns_score(self, df: pd.DataFrame) -> pd.DataFrame:
         """
