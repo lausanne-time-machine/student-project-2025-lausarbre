@@ -19,7 +19,7 @@ norm -> normalisé à la main -> le mieux
 
 années vérifiées à la main: 1832, 1835, 1855
 
-1835, 1855 corrigé existe sur moodle
+1835, 1855 corrigé existe sur moodle (années fiables)
 
 regarder chef, 30-35 ->
 cas d'étude -> slides
