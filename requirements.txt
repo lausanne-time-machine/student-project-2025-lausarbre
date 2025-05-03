@@ -1,5 +1,1 @@
-pandas
-ipykernel
-openpyxl
 pydantic
-fastapi

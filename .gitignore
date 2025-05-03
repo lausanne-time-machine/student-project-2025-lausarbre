@@ -1,3 +1,6 @@
 .venv
 __pycache__
 .~lock.*
+data/normalized/*.csv
+data/public/*.json
+*.beaver
