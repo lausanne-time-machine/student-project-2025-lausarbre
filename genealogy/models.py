@@ -14,3 +14,6 @@ class TrackingChainRecord(TypedDict):
 
 
 TrackingChain = list[TrackingChainRecord]
+
+Element = str | int | list[str] | None
+SerializedDataframe = dict[str, list[Element]]

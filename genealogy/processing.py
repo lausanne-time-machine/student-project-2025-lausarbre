@@ -1,7 +1,7 @@
 import polars as pl
 import blitzbeaver as bb
 
-from genealogy.models import TrackingChain
+from genealogy.models import TrackingChain, SerializedDataframe
 
 
 def preprocess_df(df: pl.DataFrame) -> pl.DataFrame:
@@ -61,3 +61,13 @@ def serialize_tracking_chains(
             for frame in chain.frames
         ]
     return raw
+
+
+def serialize_dataframes(dataframes: list[pl.DataFrame]) -> list[SerializedDataframe]:
+    """
+    Serializes the dataframes into a JSON-like format.
+    """
+    serialized = []
+    for df in dataframes:
+        serialized.append(df.to_dict(as_series=False))
+    return serialized
