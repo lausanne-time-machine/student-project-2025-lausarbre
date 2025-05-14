@@ -1,0 +1,53 @@
+@import url("./theme.css");
+
+.table-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Header */
+.table-header-row {
+    background-color: var(--background-alt);
+    border-bottom: 1px solid var(--border-color);
+    padding: 8px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.table-header-text {
+    font-weight: bold;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+/* Rows */
+.table-data-row {
+    background-color: var(--table-alt);
+    padding: 8px 0;
+}
+
+.table-data-row:nth-child(odd) {
+    background-color: var(--surface);
+    padding: 8px 0;
+
+}
+
+/* Hover Effect */
+.table-data-row:hover {
+    background-color: var(--table-hover);
+}
+
+/* Text */
+.table-data-text {
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* Titles */
+.text-h6 {
+    color: var(--primary);
+    font-weight: bold;
+    margin: 10px;
+    text-align: center;
+}
