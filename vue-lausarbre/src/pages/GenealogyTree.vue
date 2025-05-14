@@ -1,6 +1,6 @@
 <template>
     <div ref="containerRef" class="chart-container">
-        <svg ref="svgRef" :viewBox="`0 0 ${width} ${height}`" preserveAspectRatio="xMidYMid meet"></svg>
+        <svg ref="svgRef" :viewBox="`0 0 ${screen_width} ${screen_height}`" preserveAspectRatio="xMidYMid meet"></svg>
     </div>
 </template>
 
@@ -13,15 +13,15 @@ import type { GenealogyNode, GenealogyTreeProps } from '@/types'
 const props = defineProps<GenealogyTreeProps>()
 const containerRef = ref<HTMLDivElement | null>(null)
 const svgRef = ref<SVGSVGElement | null>(null)
-const width = ref(0)
-const height = ref(0)
+const screen_width = ref(0)
+const screen_height = ref(0)
 
 onMounted(() => {
     if (!containerRef.value || !svgRef.value) return
 
     const observer = new ResizeObserver(([entry]) => {
-        width.value = entry.contentRect.width
-        height.value = entry.contentRect.height
+        screen_width.value = entry.contentRect.width
+        screen_height.value = entry.contentRect.height
 
         drawGraph() // run your graph drawing function with new size
     })
@@ -29,14 +29,60 @@ onMounted(() => {
     observer.observe(containerRef.value)
 })
 
-function buildParents(node: GenealogyNode, middleX: number, middleY: number, shift: number) {
+const PAIR_BAR_WIDTH: number = 140;
+const GENERATION_BAR_HEIGHT: number = 140;
+const NODE_RADIUS: number = 30;
+const BAR_THICKNESS: number = 5;
+
+const LEAF_CHILDREN_WIDTH: number = 140;
+const PAIR_WIDTH: number = PAIR_BAR_WIDTH + 2* NODE_RADIUS;
+const BORDER_MARGIN: number = 20;
+
+
+function getTreeWidth(node: GenealogyNode): number {
+    let children_width = 0;
+    for (const child of node.children) {
+        children_width += getTreeWidth(child)
+    }
+    children_width += node.leaf_children.length * LEAF_CHILDREN_WIDTH;
+
+    // node without children
+    const width = children_width > PAIR_WIDTH ? children_width : PAIR_WIDTH;
+    
+    return width + 2 * BORDER_MARGIN;
+}
+
+function getChildrenBarWidth(node: GenealogyNode): number {
+    let width = 0;
+
+    let children_widths = []
+    for (const child of node.children) {
+        children_widths.push(getTreeWidth(child))
+    }
+    for (let i=0; i<node.leaf_children.length;i++) {
+        children_widths.push(LEAF_CHILDREN_WIDTH);
+    }
+
+    if (children_widths.length < 2) {
+        return 0;
+    }
+
+    width += children_widths[0] / 2;
+    width += children_widths[children_widths.length - 1] / 2;
+    for (let i=1; i<children_widths.length-1; i++) {
+        width += children_widths[i];
+    }
+    return width;
+}
+
+function drawPair(x: number, y: number) {
     const svg = d3.select(svgRef.value)
-    const nodes = [{ x: middleX - width.value * 0.1, y: middleY }, { x: middleX + width.value * 0.1, y: middleY }]
+    const nodes = [{ x: x - PAIR_BAR_WIDTH / 2, y: y }, { x: x + PAIR_BAR_WIDTH / 2, y: y }]
 
     svg.append('path')
         .attr('d', d3.line()([[nodes[0].x, nodes[0].y], [nodes[1].x, nodes[1].y]]))
         .attr('stroke', 'blue')
-        .attr('stroke-width', 5)
+        .attr('stroke-width', BAR_THICKNESS)
         .attr('fill', 'none')
 
     svg.selectAll('circle.node')
@@ -45,107 +91,88 @@ function buildParents(node: GenealogyNode, middleX: number, middleY: number, shi
         .append('circle')
         .attr('cx', d => d.x)
         .attr('cy', d => d.y)
-        .attr('r', d => 40)
+        .attr('r', d => NODE_RADIUS)
         .attr('fill', d => 'blue')
-
-
 }
 
-function buildChildren(genNodes: GenealogyNode[], middleX: number, middleY: number, shift: number) {
-    if (genNodes.length == 0) {
+function drawLeafChild(x: number, y: number) {
+    const svg = d3.select(svgRef.value)
+    const nodes = [{ x: x, y: y }]
+    svg.selectAll('circle.node')
+        .data(nodes)
+        .enter()
+        .append('circle')
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y)
+        .attr('r', d => NODE_RADIUS)
+        .attr('fill', d => 'blue')
+}
+
+function drawBar(fromX: number, fromY: number, toX: number, toY: number) {
+    const svg = d3.select(svgRef.value)
+    svg.append('path')
+        .attr('d', d3.line()([[fromX, fromY], [toX, toY]]))
+        .attr('stroke', 'blue')
+        .attr('stroke-width', BAR_THICKNESS)
+        .attr('fill', 'none')
+}
+
+function drawTree(node: GenealogyNode, x: number, y: number) {
+    
+    drawPair(x, y);
+    
+    if (node.children.length == 0 && node.leaf_children.length == 0) {
         return
     }
 
-    const svg = d3.select(svgRef.value)
-    const nodes = [{ x: middleX, y: middleY }, { x: middleX, y: middleY + shift * height.value }]
+    drawBar(x, y, x, y + GENERATION_BAR_HEIGHT);
+    
+    // draw children bar
+    const y_children_bar= y + GENERATION_BAR_HEIGHT;
+    const children_bar_width = getChildrenBarWidth(node);
+    drawBar(x- children_bar_width / 2, y_children_bar, x + children_bar_width / 2, y_children_bar);
+    
+    let child_x = x - children_bar_width / 2;
+    const child_y = y_children_bar + GENERATION_BAR_HEIGHT;
 
-    svg.append('path')
-        .attr('d', d3.line()([[nodes[0].x, nodes[0].y], [nodes[1].x, nodes[1].y]]))
-        .attr('stroke', 'blue')
-        .attr('stroke-width', 5)
-        .attr('fill', 'none')
+    for (let i=0; i<node.children.length - 1; i++) {
+        const child = node.children[i];
+        const next_child = node.children[i+1];
+        drawBar(child_x, y_children_bar, child_x, child_y);
+        drawTree(child, child_x, child_y);
+        child_x += getTreeWidth(child) / 2 + getTreeWidth(next_child) / 2;
+    }
 
-    genNodes.forEach(node => {
-        buildParents(node, middleX - 0.1 * width.value, middleY + shift * height.value, shift)
-        buildChildren(node.children, middleX - 0.1 * width.value, middleY + shift * height.value, shift)
-    })
+    // draw last child
+    if (node.children.length > 0) {
+        const child = node.children[node.children.length-1];
+        drawBar(child_x, y_children_bar, child_x, child_y);
+        drawTree(child, child_x, child_y);
+        child_x += getTreeWidth(child) / 2 + LEAF_CHILDREN_WIDTH / 2;;
+    }
 
-
+    for (let i=0; i<node.leaf_children.length; i++) {
+        drawBar(child_x, y_children_bar, child_x, child_y);
+        drawLeafChild(child_x, child_y);
+        child_x += LEAF_CHILDREN_WIDTH;
+    }
 }
 
 function drawGraph() {
-    if (!svgRef.value || width.value === 0 || height.value === 0) return
+    if (!svgRef.value || screen_width.value === 0 || screen_height.value === 0) return
 
 
     const node = findTreeForID(props.id)
     if (!node) {
         return
     }
-    
-    const depth = findTreeDepth(node)
-    const values = getFeatureValuesForID(props.id)
-    console.log(depth)
-    console.log(node)
 
+    console.log(node)
 
     const svg = d3.select(svgRef.value)
     svg.selectAll("*").remove() // clear previous render
 
-    const shift = 0.6 / depth
-
-    buildParents(node, width.value / 2, height.value / 2 - height.value * shift, shift)
-
-    buildChildren(node.children, width.value / 2, height.value / 2 - height.value * shift, shift)
-    console.log(node.children)
-    // const A = { x: width.value / 2 - 100, y: height.value / 2 }
-    // const B = { x: width.value / 2 + 100, y: height.value / 2 }
-    // const C = { x: width.value / 2, y: 100 }
-
-    // const midAB = {
-    //     x: (A.x + B.x) / 2,
-    //     y: (A.y + B.y) / 2
-    // }
-
-    // svg.append('path')
-    //     .attr('d', d3.line()([[A.x, A.y], [B.x, B.y]]))
-    //     .attr('stroke', 'steelblue')
-    //     .attr('stroke-width', 3)
-    //     .attr('fill', 'none')
-
-    // svg.append('path')
-    //     .attr('d', d3.line()([[C.x, C.y], [midAB.x, midAB.y]]))
-    //     .attr('stroke', 'crimson')
-    //     .attr('stroke-width', 2)
-    //     .attr('stroke-dasharray', '4 2')
-    //     .attr('fill', 'none')
-
-    // const nodes = [
-    //     { ...A, label: 'A' },
-    //     { ...B, label: 'B' },
-    //     { ...C, label: 'C' },
-    //     { ...midAB, label: 'Mid', color: 'orange', radius: 4 }
-    // ]
-
-    // svg.selectAll('circle.node')
-    //     .data(nodes)
-    //     .enter()
-    //     .append('circle')
-    //     .attr('cx', d => d.x)
-    //     .attr('cy', d => d.y)
-    //     .attr('r', d => 6)
-    //     .attr('fill', d => 'black')
-
-    // svg.selectAll('text.label')
-    //     .data(nodes)
-    //     .enter()
-    //     .append('text')
-    //     .attr('x', d => d.x)
-    //     .attr('y', d => d.y)
-    //     .attr('dy', 4) // Slightly adjust vertical position for centering
-    //     .attr('text-anchor', 'middle') // Center text horizontally
-    //     .text(d => d.label)
-    //     .attr('font-size', 12)
-    //     .attr('fill', 'white')
+    drawTree(node, screen_width.value / 2, 50)
 }
 
 </script>
