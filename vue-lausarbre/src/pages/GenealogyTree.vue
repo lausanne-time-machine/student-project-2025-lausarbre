@@ -29,7 +29,7 @@ import type { GenealogyNode, GenealogyTreeProps, RawElement } from '@/types'
 import OnePersonInformation from '@/components/OnePersonInformation.vue'
 import "../styles/main.css"
 import { RAW_TO_PRETTY } from '@/core/constants'
-import { getFeatureValuesForID, getYearsForID } from '@/core/feature_values'
+import { getFeatureValuesForID, getStartEndYearsForID } from '@/core/feature_values'
 import { findRootTreeForID } from '@/core/genealogy'
 
 const props = defineProps<GenealogyTreeProps>()
@@ -37,7 +37,7 @@ const containerRef = ref<HTMLDivElement | null>(null)
 const svgRef = ref<SVGSVGElement | null>(null)
 const screen_width = ref(0)
 const screen_height = ref(0)
-const title = ref("")
+const familyName = ref("")
 const showDialog = ref(false)
 const personId = ref<number | null>()
 
@@ -59,13 +59,24 @@ onMounted(() => {
 
 const GENERATION_BAR_HEIGHT: number = 100;
 const NODE_WIDTH: number = 200;
-const NODE_HEIGHT: number = 50
+const NODE_HEIGHT: number = 80
 const BAR_THICKNESS: number = 3;
 
 const PAIR_BAR_WIDTH: number = 300;
 const LEAF_CHILDREN_WIDTH: number = 250;
 const PAIR_WIDTH: number = PAIR_BAR_WIDTH + 2 * NODE_WIDTH;
 const BORDER_MARGIN: number = 20;
+
+const familyStartYear = ref(0)
+const familyEndYear = ref(0)
+
+const title = computed(() => {
+    if(familyStartYear.value == 0 || familyEndYear.value == 0){
+        return familyName.value
+    }
+
+    return familyName.value + ` (${familyStartYear.value} - ${familyEndYear.value})`
+})
 
 function getTreeWidth(node: GenealogyNode): number {
     let children_width = 0;
@@ -107,6 +118,8 @@ function drawPair(
     x: number,
     y: number,
     trackedPersonFirstName: string | null,
+    startYear: number | null,
+    endYear: number | null,
     spouseName: string | null,
     lastName: string | null
 ) {
@@ -156,7 +169,7 @@ function drawPair(
         // First name
         group.append('text')
             .attr('x', d.x)
-            .attr('y', d.y - 5)
+            .attr('y', d.y - 15)
             .attr('text-anchor', 'middle')
             .attr('font-size', '14px')
             .attr('font-weight', 'bold')
@@ -166,13 +179,24 @@ function drawPair(
         // Last name
         group.append('text')
             .attr('x', d.x)
-            .attr('y', d.y + 15)
+            .attr('y', d.y + 5)
             .attr('text-anchor', 'middle')
             .attr('font-size', '14px')
             .attr('fill', '#444')
             .text(surname);
 
         if (d.isTracked) {
+            if (startYear && endYear) {
+                group.append('text')
+                    .attr('x', d.x)
+                    .attr('y', d.y + 27)
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '14px')
+                    .attr('fill', '#444')
+                    .text(`(${startYear} - ${endYear})`);
+            }
+
+
             group
                 .on('mouseover', function () {
                     d3.select(this).select('rect')
@@ -255,8 +279,18 @@ function drawTree(node: GenealogyNode, x: number, y: number, lastName: string | 
     const info = getFeatureValuesForID(node.id)
     const firstName = info[1] as string | null
     const spouseName = info[4] as string | null
-    // console.log(info)
-    drawPair(node.id, x, y, firstName, spouseName, lastName);
+
+    const years = getStartEndYearsForID(node.id)
+    let startYear = null
+    let endYear = null
+
+    if (years.length) {
+        startYear = years[0]
+        endYear = years[1]
+        familyEndYear.value = endYear > familyEndYear.value ? endYear : familyEndYear.value
+    }
+
+    drawPair(node.id, x, y, firstName, startYear, endYear, spouseName, lastName);
 
 
     if (node.children.length == 0 && node.leaf_children.length == 0) {
@@ -301,7 +335,7 @@ function drawGraph() {
 
 
     const node = findRootTreeForID(props.id)
-    console.log(node)
+
     if (!node) {
         return
     }
@@ -325,13 +359,14 @@ function drawGraph() {
     const info = getFeatureValuesForID(node.id)
     const lastName = info[2] as string | null
 
-    title.value = `Famille ${lastName?.toLocaleUpperCase()}`
-    const years = getYearsForID(node.id)
+    familyName.value = `Famille ${lastName?.toLocaleUpperCase()}`
+    const years = getStartEndYearsForID(node.id)
 
     if (years.length > 0) {
-        title.value += ` (${years[0]} - ${years[1]})`
+        familyStartYear.value = years[0]
     }
-    // console.log(node)
+
+    console.log(node)
     drawTree(node, screen_width.value / 2, 50, lastName)
 }
 

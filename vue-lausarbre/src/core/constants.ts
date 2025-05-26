@@ -7,4 +7,4 @@ export const RAW_TO_PRETTY = new Map([["nom_rue", "Nom de rue"],
 ["enfants_chez_parents_prenom", "Prénoms des enfants chez leurs parents"]
 ])
 
-export const YEARS = Array.from({ length: 1895 - 1805 + 1 }, (_, i) => 1805 + i);
+export const START_YEAR = 1835

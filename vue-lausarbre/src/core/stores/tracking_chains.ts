@@ -16,12 +16,9 @@ export const trackingChainStore = defineStore('trackingChainStore', {
         fetchTrackingChain(trackedIDs: Set<ID>) {
             fetchAndUnzipTrackingChain().then(c => {
                 Object.entries(c).forEach(([_id, trackingChainNode], index) => {
+                 
                     const id = Number(_id)
                     if (trackedIDs.has(id)) {
-                        if(id == 14501618245991350000){
-                            console.log("exists in tracking chains")
-
-                        }
                         this.trackingChain.set(id, trackingChainNode)
                     }
                 })

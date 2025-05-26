@@ -1,6 +1,5 @@
 import type { ID, RawElement } from "@/types";
-import { findTreeForID } from "./genealogy";
-import { RAW_TO_PRETTY, YEARS } from "./constants";
+import { RAW_TO_PRETTY, START_YEAR } from "./constants";
 import { dataframesStore } from "./stores/dataframes";
 import { getChainForNode } from "./chain";
 
@@ -85,12 +84,11 @@ export function getFeatureValuesForMultipleID(ids: ID[]): Map<ID, RawElement[]> 
     return m
 }
 
-export function getYearsForID(id: ID): number[] {
+export function getStartEndYearsForID(id: ID): number[] {
     const nodes = getChainForNode(id);
     console.log(nodes)
     if (!nodes) return []
     if (nodes.length < 2) return []
-
-    return [YEARS[nodes[0].frame_idx], YEARS[nodes[nodes.length - 1].frame_idx]]
+    return [nodes[0].frame_idx + START_YEAR, nodes[nodes.length - 1].frame_idx + START_YEAR]
 }
 

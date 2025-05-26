@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { RAW_TO_PRETTY } from '@/core/constants';
-import { getFeatureValuesForID } from '@/core/feature_values';
+import { getFeatureValuesForID, getStartEndYearsForID } from '@/core/feature_values';
 import type { OnePersonInfoProps, RawElement } from '@/types';
 import { computed } from "vue"
 
@@ -37,6 +37,11 @@ const featureValues = computed(() => {
 
     features.forEach((feature, i) => m.set(feature, values[i]))
 
+    const years = getStartEndYearsForID(props.id)
+    if(years.length > 0){
+        m.set("Retrouvé en", years[0])
+        m.set("Jusqu'en", years[1])
+    }
     return m
 
 })

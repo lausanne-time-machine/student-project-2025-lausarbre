@@ -90,7 +90,6 @@ function findGoodTree() {
 }
 
 onMounted(async () => {
-    console.log(initialized)
     const filters = filterStore.getFilters
     if (filters.length !== 0) {
         filters.forEach(fv => models[fv.feature] = fv.value)
