@@ -1,7 +1,7 @@
 <template>
     <TopBar :title="title"></TopBar>
 
-    <v-dialog v-model="showDialog" max-width="400" persistent>
+    <v-dialog v-model="showDialog" max-width="600" persistent>
         <v-card>
             <template v-slot:actions>
                 <v-col>
@@ -29,8 +29,8 @@ import type { GenealogyNode, GenealogyTreeProps, RawElement } from '@/types'
 import OnePersonInformation from '@/components/OnePersonInformation.vue'
 import "../styles/main.css"
 import { RAW_TO_PRETTY } from '@/core/constants'
-import { getFeatureValuesForID } from '@/core/feature_values'
-import { findTreeForID } from '@/core/genealogy'
+import { getFeatureValuesForID, getYearsForID } from '@/core/feature_values'
+import { findRootTreeForID } from '@/core/genealogy'
 
 const props = defineProps<GenealogyTreeProps>()
 const containerRef = ref<HTMLDivElement | null>(null)
@@ -200,12 +200,12 @@ function drawPair(
 }
 
 
-
-
 function drawLeafChild(x: number, y: number, firstName: string | null, lastName: string | null) {
 
     const group = svgContainer.value?.append('g')
         .attr('class', 'leaf-node')
+        .style('cursor', 'default');
+
 
 
     if (!group) { return }
@@ -300,7 +300,8 @@ function drawGraph() {
     if (!svgRef.value || screen_width.value === 0 || screen_height.value === 0) return
 
 
-    const node = findTreeForID(props.id)
+    const node = findRootTreeForID(props.id)
+    console.log(node)
     if (!node) {
         return
     }
@@ -319,11 +320,18 @@ function drawGraph() {
             })
     )
 
+
+
     const info = getFeatureValuesForID(node.id)
     const lastName = info[2] as string | null
-    const firstName = info[1] as string | null
-    title.value = `${firstName} ${lastName}`
-    console.log(node)
+
+    title.value = `Famille ${lastName?.toLocaleUpperCase()}`
+    const years = getYearsForID(node.id)
+
+    if (years.length > 0) {
+        title.value += ` (${years[0]} - ${years[1]})`
+    }
+    // console.log(node)
     drawTree(node, screen_width.value / 2, 50, lastName)
 }
 

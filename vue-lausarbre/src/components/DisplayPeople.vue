@@ -2,10 +2,10 @@
 
     <v-card class="display-card">
         <v-row>
-            <v-card-title class="text-h6">Person Matching</v-card-title>
+            <v-card-title class="text-h6">Personnes trouvées</v-card-title>
         </v-row>
         <v-row>
-            <v-card-subtitle>Number of results: {{ props.data === null ? 0 : props.data?.size }}</v-card-subtitle>
+            <v-card-subtitle>Nombre de résultats: {{ props.data === null ? 0 : props.data?.size }}</v-card-subtitle>
         </v-row>
 
         <!-- Table Header -->
@@ -20,7 +20,7 @@
             <v-card>
                 <v-card-text class="error-content">
                     <v-icon class="error-icon">mdi-alert-circle</v-icon>
-                    <span class="error-text">No person found</span>
+                    <span class="error-text">Pas de résultat</span>
                 </v-card-text>
             </v-card>
         </div>

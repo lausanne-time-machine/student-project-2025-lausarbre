@@ -1,12 +1,13 @@
 import type { ID, RawElement } from "@/types";
 import { findTreeForID } from "./genealogy";
-import { RAW_TO_PRETTY } from "./constants";
+import { RAW_TO_PRETTY, YEARS } from "./constants";
 import { dataframesStore } from "./stores/dataframes";
 import { getChainForNode } from "./chain";
 
 export function getFeatureValuesForID(id: ID): RawElement[] {
     const dataframes = dataframesStore().dataframes;
     const nodes = getChainForNode(id);
+
     if (!nodes) return [];
 
     // Feature -> serializedValue -> count
@@ -35,7 +36,8 @@ export function getFeatureValuesForID(id: ID): RawElement[] {
             if (Array.isArray(rawValue)) {
                 //const sorted = [...rawValue].sort(); // Avoid mutating original
                 //key = JSON.stringify(sorted);
-                
+
+
                 key = "children"
                 const children = originalValues.get(key) as string[] | undefined
                 const updatedChildren = children ? children.concat([...rawValue]) : [...rawValue]
@@ -68,6 +70,7 @@ export function getFeatureValuesForID(id: ID): RawElement[] {
         result.push(original ?? "?");
     });
 
+
     return result;
 }
 
@@ -80,5 +83,14 @@ export function getFeatureValuesForMultipleID(ids: ID[]): Map<ID, RawElement[]> 
     }
 
     return m
+}
+
+export function getYearsForID(id: ID): number[] {
+    const nodes = getChainForNode(id);
+    console.log(nodes)
+    if (!nodes) return []
+    if (nodes.length < 2) return []
+
+    return [YEARS[nodes[0].frame_idx], YEARS[nodes[nodes.length - 1].frame_idx]]
 }
 

@@ -1,9 +1,9 @@
 import type { GenealogyNode, ID } from "@/types"
 import { useTreeStore } from "./stores/trees"
 
-function findNode(node: GenealogyNode, id: ID): GenealogyNode | null | undefined {
+function findNode(rootNode: GenealogyNode, node: GenealogyNode, id: ID): GenealogyNode | null | undefined {
     if (node.id == id) {
-        return node
+        return rootNode
     }
 
     if (node.children.length == 0) {
@@ -11,7 +11,7 @@ function findNode(node: GenealogyNode, id: ID): GenealogyNode | null | undefined
     }
 
     for (let i = 0; i < node.children.length; i++) {
-        const r = findNode(node.children[i], id)
+        const r = findNode(rootNode, node.children[i], id)
         if (r) {
             return r
         }
@@ -19,11 +19,12 @@ function findNode(node: GenealogyNode, id: ID): GenealogyNode | null | undefined
     return null
 }
 
-export function findTreeForID(id: ID): GenealogyNode | null {
+
+export function findRootTreeForID(id: ID): GenealogyNode | null {
     const trees = useTreeStore().trees
 
     for (let i = 0; i < trees.length; i++) {
-        const node = findNode(trees[i], id)
+        const node = findNode(trees[i], trees[i], id)
 
         if (node) {
             return node

@@ -6,3 +6,5 @@ export const RAW_TO_PRETTY = new Map([["nom_rue", "Nom de rue"],
 ["chef_vocation", "Vocation du chef de famille"],
 ["enfants_chez_parents_prenom", "Prénoms des enfants chez leurs parents"]
 ])
+
+export const YEARS = Array.from({ length: 1895 - 1805 + 1 }, (_, i) => 1805 + i);

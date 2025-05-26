@@ -14,15 +14,15 @@ import { useTreeStore } from './core/stores/trees';
 import { computed, watch } from 'vue'
 
 
-const tStore = useTreeStore()
-tStore.fetchTrees()
+const treeStore = useTreeStore()
+treeStore.fetchTrees()
 
 const dStore = dataframesStore()
 dStore.fetchDataframes()
 
 
 const tcStore = trackingChainStore()
-const allIDs = computed(() => tStore.getAllIDs)
+const allIDs = computed(() => treeStore.getAllIDs)
 watch(allIDs, (newAllIDs) => tcStore.fetchTrackingChain(newAllIDs))
 
 

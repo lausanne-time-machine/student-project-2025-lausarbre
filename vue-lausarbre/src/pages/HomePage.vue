@@ -1,7 +1,7 @@
 <template>
     <div v-if="!loading">
         <v-card class="combobox-card pa-6">
-            <v-card-title>Fill in the fields you want</v-card-title>
+            <v-card-title>Remplissez les champs que vous souhaitez</v-card-title>
             <v-row class="mb-4" dense>
                 <v-col cols="12" sm="6" md="4" lg="3" v-for="([raw, pretty], index) in RAW_TO_PRETTY" :key="index">
                     <v-combobox :label="pretty" v-model="models[raw]" class="combobox" clearable dense
@@ -11,12 +11,8 @@
 
             <div class="button-wrapper">
                 <v-btn color="primary" class="search-btn" @click="findGoodTree">
-                    I am lucky
+                    J'ai de la chance
                 </v-btn>
-                <v-btn color="primary" class="search-btn" @click="search">
-                    Search
-                </v-btn>
-
             </div>
         </v-card>
 
@@ -42,6 +38,7 @@ import { findTrackersForMultipleFeature } from "@/core/filter"
 import { getFeatureValuesForMultipleID } from "@/core/feature_values"
 import { useFilterStore } from "@/core/stores/filters"
 import { useRouter } from 'vue-router';
+import { fetchAndUnzipTrackingChain } from "@/core/fetch"
 
 
 const models = reactive<Record<string, string>>({})

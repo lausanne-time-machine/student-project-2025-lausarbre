@@ -4,7 +4,7 @@
             <v-icon @click="goBack">mdi mdi-arrow-left</v-icon>
         </template>
 
-        <v-app-bar-title class="top-bar-title text-uppercase"> {{ title }}</v-app-bar-title>
+        <v-app-bar-title class="top-bar-title"> {{ title }}</v-app-bar-title>
 
         <v-btn color="secondary" size="large" class="mx-2" @click="goToHomePage">
             <template v-slot:prepend>
