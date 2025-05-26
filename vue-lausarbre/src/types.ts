@@ -40,3 +40,11 @@ export interface DisplayPeopleProps {
 export interface GenealogyTreeProps {
     id: ID
 }
+
+export interface OnePersonInfoProps {
+    id: ID
+}
+
+export interface TopBarProps {
+    title: string
+}

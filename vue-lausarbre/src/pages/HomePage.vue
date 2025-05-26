@@ -1,43 +1,64 @@
 <template>
+    <div v-if="!loading">
+        <v-card class="combobox-card pa-6">
+            <v-card-title>Fill in the fields you want</v-card-title>
+            <v-row class="mb-4" dense>
+                <v-col cols="12" sm="6" md="4" lg="3" v-for="([raw, pretty], index) in RAW_TO_PRETTY" :key="index">
+                    <v-combobox :label="pretty" v-model="models[raw]" class="combobox" clearable dense
+                        variant="outlined" hide-details />
+                </v-col>
+            </v-row>
 
-    <v-card class="combobox-card pa-6">
-        <v-card-title>Fill in the fields you want</v-card-title>
-        <v-row class="mb-4" dense>
-            <v-col cols="12" sm="6" md="4" lg="3" v-for="([raw, pretty], index) in RAW_TO_PRETTY" :key="index">
-                <v-combobox :label="pretty" v-model="models[raw]" class="combobox" clearable dense variant="outlined"
-                    hide-details />
-            </v-col>
-        </v-row>
+            <div class="button-wrapper">
+                <v-btn color="primary" class="search-btn" @click="findGoodTree">
+                    I am lucky
+                </v-btn>
+                <v-btn color="primary" class="search-btn" @click="search">
+                    Search
+                </v-btn>
 
-        <div class="button-wrapper">
-            <v-btn color="primary" class="search-btn" @click="search">
-                Search
-            </v-btn>
-        </div>
-    </v-card>
+            </div>
+        </v-card>
 
-    <display-people :data="displayPeople" />
-
-
+        <display-people :data="displayPeople" />
+    </div>
+    <div class="loading-spinner" v-else>
+        <v-progress-circular :size="100" :width="10" model-value="10" indeterminate></v-progress-circular>
+    </div>
 
 </template>
 
 
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue"
+import { ref, reactive, onMounted, watch, computed, nextTick } from "vue"
 import { RAW_TO_PRETTY } from "../core/constants"
-import { findTrackersForFeature, findTrackersForMultipleFeature, getFeatureValuesForMultipleID } from "@/core/filter"
 import type { FeatureValue, ID, RawElement } from "../types"
 import DisplayPeople from "../components/DisplayPeople.vue"
 import { useTreeStore } from "@/core/stores/trees"
+import { dataframesStore } from "@/core/stores/dataframes"
+import { trackingChainStore } from "@/core/stores/tracking_chains"
+import { findTrackersForMultipleFeature } from "@/core/filter"
+import { getFeatureValuesForMultipleID } from "@/core/feature_values"
+import { useFilterStore } from "@/core/stores/filters"
+import { useRouter } from 'vue-router';
 
 
 const models = reactive<Record<string, string>>({})
 const displayPeople = ref<Map<ID, RawElement[]> | null>(null)
-const treeStore = useTreeStore()
+const router = useRouter();
 
-watch(models, (newModel) => {
+const tStore = useTreeStore()
+const dStore = dataframesStore()
+const tcStore = trackingChainStore()
+const filterStore = useFilterStore()
+
+const loading = computed(() => tStore.trees.length == 0 || dStore.dataframes.length == 0 || tcStore.trackingChain.size == 0)
+
+let initialized = false
+
+watch(models, () => {
+    if (!initialized) return
     search()
 })
 
@@ -47,16 +68,41 @@ function search() {
         featureValue.push({ feature: rawFeature, value: models[rawFeature] ? models[rawFeature] : "" })
     }
 
+    if (featureValue.length === 0) return
+
     featureValue.sort((a, b) => b.value.length - a.value.length)
 
     if (featureValue[0].value.length < 3) {
         return
     }
 
+    const ids = displayPeople.value ? Array.from(displayPeople.value.keys()) : []
     const trackerIds = findTrackersForMultipleFeature(featureValue)
     displayPeople.value = getFeatureValuesForMultipleID(trackerIds)
 
+    filterStore.addFilters(featureValue)
+    filterStore.setFilteredPerson(displayPeople.value)
+
 }
+
+function findGoodTree() {
+
+    const node = tStore.goodTrees[Math.floor(Math.random() * tStore.goodTrees.length)]
+    router.push({ name: 'GenealogyTree', params: { id: node.id } });
+
+}
+
+onMounted(async () => {
+    console.log(initialized)
+    const filters = filterStore.getFilters
+    if (filters.length !== 0) {
+        filters.forEach(fv => models[fv.feature] = fv.value)
+        displayPeople.value = filterStore.getFilteredPerson
+
+    }
+    await nextTick()
+    initialized = true
+})
 </script>
 
 <style scoped>
@@ -74,7 +120,7 @@ function search() {
 
 .button-wrapper {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     margin-top: 1rem;
 }
 
@@ -83,5 +129,12 @@ function search() {
     text-transform: none;
     border-radius: 8px;
     padding: 0.5rem 1.5rem;
+}
+
+.loading-spinner {
+    position: fixed;
+    /* Ensures it stays in the middle of the viewport */
+    top: 47vh;
+    left: 47vw;
 }
 </style>

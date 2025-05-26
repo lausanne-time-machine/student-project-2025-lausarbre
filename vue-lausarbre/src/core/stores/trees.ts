@@ -21,9 +21,6 @@ export const useTreeStore = defineStore('treeStore', {
 
             state.trees.forEach(root => collectIDs(root));
             return allIDs;
-        },
-        getGoodTree(): GenealogyNode {
-            return this.goodTrees[Math.floor(Math.random() * this.goodTrees.length)];
         }
     },
 

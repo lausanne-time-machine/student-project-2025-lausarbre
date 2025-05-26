@@ -4,15 +4,28 @@
         <v-row>
             <v-card-title class="text-h6">Person Matching</v-card-title>
         </v-row>
+        <v-row>
+            <v-card-subtitle>Number of results: {{ props.data === null ? 0 : props.data?.size }}</v-card-subtitle>
+        </v-row>
 
         <!-- Table Header -->
         <v-row class="table-header-row">
             <v-col class="table-header-text" v-for="([raw, pretty], index) in RAW_TO_PRETTY" :key="index">
                 {{ pretty }}
             </v-col>
+
         </v-row>
 
-        <div class="table-body">
+        <div v-if="error">
+            <v-card>
+                <v-card-text class="error-content">
+                    <v-icon class="error-icon">mdi-alert-circle</v-icon>
+                    <span class="error-text">No person found</span>
+                </v-card-text>
+            </v-card>
+        </div>
+
+        <div v-else class="table-body">
             <v-row v-for="([ID, record], index) of props.data" :key="ID" class="table-data-row"
                 @click="handleRowClick(ID)">
 
@@ -26,7 +39,9 @@
                 </v-col>
             </v-row>
         </div>
+
     </v-card>
+
 
 </template>
 
@@ -36,7 +51,7 @@ import type { DisplayPeopleProps, ID } from '@/types';
 import '../styles/main.css';
 import { useRouter } from 'vue-router';
 
-import { computed, watch } from 'vue';
+import { computed, watch, ref } from 'vue';
 
 
 const props = defineProps<DisplayPeopleProps>();
@@ -46,7 +61,7 @@ const handleRowClick = (_id: ID): void => {
     router.push({ name: 'GenealogyTree', params: { id: _id } });
 };
 
-
+const error = computed(() => props.data == null || props.data?.size === 0)
 </script>
 
 
@@ -68,5 +83,22 @@ const handleRowClick = (_id: ID): void => {
     font-weight: bold;
     margin: 10px;
     text-align: center;
+}
+
+
+
+.error-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.error-icon {
+    font-size: 28px;
+}
+
+.error-text {
+    font-weight: bold;
+    font-size: 18px;
 }
 </style>
