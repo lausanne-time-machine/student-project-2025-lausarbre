@@ -16,7 +16,14 @@
 
         </v-row>
 
-        <div v-if="error">
+        <div v-if="props.searching">
+            <v-card>
+                <v-card-text class="loading-content">
+                    Recherche en cours, veuillez patienter..
+                </v-card-text>
+            </v-card>
+        </div>
+        <div v-else-if="error">
             <v-card>
                 <v-card-text class="error-content">
                     <v-icon class="error-icon">mdi-alert-circle</v-icon>
@@ -39,6 +46,8 @@
                 </v-col>
             </v-row>
         </div>
+
+
 
     </v-card>
 
@@ -85,13 +94,24 @@ const error = computed(() => props.data == null || props.data?.size === 0)
     text-align: center;
 }
 
-
-
 .error-content {
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
+.loading-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 40px 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: #555;
+}
+
+
 
 .error-icon {
     font-size: 28px;

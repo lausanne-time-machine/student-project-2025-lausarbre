@@ -35,6 +35,7 @@ export type TrackerIDMemory = Map<ID, RawElement[]>
 
 export interface DisplayPeopleProps {
     data: TrackerIDMemory | null
+    searching: boolean
 }
 
 export interface GenealogyTreeProps {

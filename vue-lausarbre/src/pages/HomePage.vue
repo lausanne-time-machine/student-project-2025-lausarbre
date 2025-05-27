@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!loading">
+    <div v-if="!waitInitialized">
         <v-card class="combobox-card pa-6">
             <v-card-title>Remplissez les champs que vous souhaitez</v-card-title>
             <v-row class="mb-4" dense>
@@ -16,12 +16,12 @@
             </div>
         </v-card>
 
-        <display-people :data="displayPeople" />
+        <display-people :data="displayPeople" :searching="searching" />
+
     </div>
     <div class="loading-spinner" v-else>
-        <v-progress-circular :size="100" :width="10" model-value="10" indeterminate></v-progress-circular>
+        <v-progress-circular :size="100" :width="10" indeterminate></v-progress-circular>
     </div>
-
 </template>
 
 
@@ -50,7 +50,8 @@ const dStore = dataframesStore()
 const tcStore = trackingChainStore()
 const filterStore = useFilterStore()
 
-const loading = computed(() => tStore.trees.length == 0 || dStore.dataframes.length == 0 || tcStore.trackingChain.size == 0)
+const waitInitialized = computed(() => tStore.trees.length == 0 || dStore.dataframes.length == 0 || tcStore.trackingChain.size == 0)
+const searching = ref(false)
 
 let initialized = false
 
@@ -65,7 +66,10 @@ function search() {
         featureValue.push({ feature: rawFeature, value: models[rawFeature] ? models[rawFeature] : "" })
     }
 
-    if (featureValue.length === 0) return
+    if (featureValue.length === 0) {
+        return
+
+    }
 
     featureValue.sort((a, b) => b.value.length - a.value.length)
 
@@ -73,13 +77,17 @@ function search() {
         return
     }
 
-    const ids = displayPeople.value ? Array.from(displayPeople.value.keys()) : []
-    const trackerIds = findTrackersForMultipleFeature(featureValue)
-    displayPeople.value = getFeatureValuesForMultipleID(trackerIds)
+    searching.value = true
 
-    filterStore.addFilters(featureValue)
-    filterStore.setFilteredPerson(displayPeople.value)
+    // Without set timeout searching is not updated before the functions are called
+    setTimeout(() => {
+        const trackerIds = findTrackersForMultipleFeature(featureValue)
+        displayPeople.value = getFeatureValuesForMultipleID(trackerIds)
 
+        filterStore.addFilters(featureValue)
+        filterStore.setFilteredPerson(displayPeople.value)
+        searching.value = false
+    }, 0)
 }
 
 function findGoodTree() {
