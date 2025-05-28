@@ -12,12 +12,12 @@ import GenealogyTree from '@/pages/GenealogyTree.vue'
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'HomePage',
+    name: '/HomePage',
     component: HomePage,
   },
   {
     path: '/genealogy-tree/:id',
-    name: 'GenealogyTree',
+    name: '/GenealogyTree',
     component: GenealogyTree,
     props: true
   }

@@ -93,7 +93,7 @@ function search() {
 function findGoodTree() {
 
     const node = tStore.goodTrees[Math.floor(Math.random() * tStore.goodTrees.length)]
-    router.push({ name: 'GenealogyTree', params: { id: node.id } });
+    router.push({ name: '/GenealogyTree', params: { id: node.id } });
 
 }
 

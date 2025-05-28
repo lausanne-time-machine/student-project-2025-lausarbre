@@ -43,7 +43,7 @@ export interface GenealogyTreeProps {
 }
 
 export interface OnePersonInfoProps {
-    id: ID
+    id: ID | undefined | null
 }
 
 export interface TopBarProps {

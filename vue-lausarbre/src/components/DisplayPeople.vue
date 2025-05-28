@@ -67,7 +67,7 @@ const props = defineProps<DisplayPeopleProps>();
 const router = useRouter();
 
 const handleRowClick = (_id: ID): void => {
-    router.push({ name: 'GenealogyTree', params: { id: _id } });
+    router.push({ name: '/GenealogyTree', params: { id: _id } });
 };
 
 const error = computed(() => props.data == null || props.data?.size === 0)
