@@ -25,9 +25,10 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: vue-lausarbre/package-lock.json
-      - run: cd vue-lausarbre
       - run: npm ci
+        working-directory: vue-lausarbre
       - run: npm run build
+        working-directory: vue-lausarbre
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
