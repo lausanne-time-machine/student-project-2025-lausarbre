@@ -1,5 +1,6 @@
 <template>
     <div v-if="!waitInitialized">
+        <h1 class="title">Lausarbre</h1>
         <v-card class="combobox-card pa-6">
             <v-card-title>Remplissez les champs que vous souhaitez</v-card-title>
             <v-row class="mb-4" dense>
@@ -110,6 +111,14 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.title {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 3rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 2rem;
+}
+
 .combobox-card {
     background-color: #dddddd;
     border-radius: 16px;
