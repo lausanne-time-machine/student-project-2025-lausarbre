@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: vue-lausarbre/package-lock.json
+      - run: cd vue-lausarbre
       - run: npm ci
       - run: npm run build
       - uses: actions/configure-pages@v4
