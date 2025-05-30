@@ -33,9 +33,7 @@
         </div>
 
         <div v-else class="table-body">
-            <v-row v-for="([ID, record], index) of props.data" :key="ID" class="table-data-row"
-                @click="handleRowClick(ID)">
-
+            <v-row v-for="([ID, record], index) of props.data" :key="ID" class="table-data-row" @click="handleRowClick(ID)">
                 <v-col class="table-data-text" v-for="(value, index) in record" :key="index">
                     <div v-if="Array.isArray(value)">
                         <div v-for="(val, i) in value" :key="i">{{ val }},</div>
@@ -46,11 +44,7 @@
                 </v-col>
             </v-row>
         </div>
-
-
-
     </v-card>
-
 
 </template>
 

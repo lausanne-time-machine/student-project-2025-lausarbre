@@ -1,0 +1,11 @@
+@import url("./theme.css");
+
+:root {
+    --sidebar-width: 300px;
+    --sidebar-bg: #e0e0e0f3;
+    --sidebar-hover: #d0d0d0;
+    --sidebar-selected: #c0c0c0;
+    --sidebar-orange: #d49075;
+    --sidebar-symbols: var(--text-primary);
+    --sidebar-text: var(--text-primary);
+}

@@ -26,7 +26,6 @@
 </template>
 
 
-
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch, computed, nextTick } from "vue"
 import { RAW_TO_PRETTY } from "../core/constants"
@@ -39,7 +38,6 @@ import { findTrackersForMultipleFeature } from "@/core/filter"
 import { getFeatureValuesForMultipleID } from "@/core/feature_values"
 import { useFilterStore } from "@/core/stores/filters"
 import { useRouter } from 'vue-router';
-import { fetchAndUnzipTrackingChain } from "@/core/fetch"
 
 
 const models = reactive<Record<string, string>>({})
@@ -118,6 +116,7 @@ onMounted(async () => {
     text-align: center;
     margin-top: 2rem;
 }
+
 
 .combobox-card {
     background-color: #dddddd;

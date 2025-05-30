@@ -8,10 +8,16 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import HomePage from '../pages/HomePage.vue'
 import GenealogyTree from '@/pages/GenealogyTree.vue'
+import Presentation from '@/pages/Presentation.vue'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
+    name: '/Presentation',
+    component: Presentation,
+  },
+  {
+    path: '/HomePage',
     name: '/HomePage',
     component: HomePage,
   },
