@@ -3,7 +3,7 @@ import JSZip from 'jszip';
 
 
 export async function fetchAndUnzip<T>(filename: string): Promise<T> {
-    const response = await fetch(`/${filename}.zip`);
+    const response = await fetch(`/student-project-2025-lausarbre/${filename}.zip`);
     const blob = await response.blob();
 
     const arrayBuffer = await blob.arrayBuffer();
